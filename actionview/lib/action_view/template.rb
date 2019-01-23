@@ -9,8 +9,6 @@ module ActionView
   class Template
     extend ActiveSupport::Autoload
 
-    mattr_accessor :finalize_compiled_template_methods, default: true
-
     # === Encodings in ActionView::Template
     #
     # ActionView::Template is one of a few sources of potential
@@ -116,16 +114,6 @@ module ActionView
     attr_accessor :locals, :formats, :variants, :virtual_path
 
     attr_reader :source, :identifier, :handler, :original_encoding, :updated_at
-
-    # This finalizer is needed (and exactly with a proc inside another proc)
-    # otherwise templates leak in development.
-    Finalizer = proc do |method_name, mod| # :nodoc:
-      proc do
-        mod.module_eval do
-          remove_possible_method method_name
-        end
-      end
-    end
 
     def initialize(source, identifier, handler, details)
       format = details[:format] || (handler.default_format if handler.respond_to?(:default_format))
@@ -316,9 +304,6 @@ module ActionView
         end
 
         mod.module_eval(source, identifier, 0)
-        if finalize_compiled_template_methods
-          ObjectSpace.define_finalizer(self, Finalizer[method_name, mod])
-        end
       end
 
       def handle_render_error(view, e)
