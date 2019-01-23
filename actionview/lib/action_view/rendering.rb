@@ -35,24 +35,35 @@ module ActionView
     end
 
     module ClassMethods
-      def view_context_class
-        @view_context_class ||= begin
-          supports_path = supports_path?
-          routes  = respond_to?(:_routes)  && _routes
-          helpers = respond_to?(:_helpers) && _helpers
+      def _routes
+      end
 
-          klass = ActionView::DetailsKey.view_context_class(ActionView::Base)
-          Class.new(klass) do
-            if routes
-              include routes.url_helpers(supports_path)
-              include routes.mounted_helpers
-            end
+      def _helpers
+      end
 
-            if helpers
-              include helpers
-            end
+      def build_av_class(klass, supports_path, routes, helpers)
+        Class.new(klass) do
+          if routes
+            include routes.url_helpers(supports_path)
+            include routes.mounted_helpers
+          end
+
+          if helpers
+            include helpers
           end
         end
+      end
+
+      def view_context_class
+        klass = ActionView::DetailsKey.view_context_class(ActionView::Base)
+
+        @view_context_class ||= build_av_class(klass, supports_path?, _routes, _helpers)
+
+        if klass.changed?(@view_context_class)
+          @view_context_class = build_av_class(klass, supports_path?, _routes, _helpers)
+        end
+
+        @view_context_class
       end
     end
 
