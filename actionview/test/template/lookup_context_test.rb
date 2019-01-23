@@ -6,7 +6,7 @@ require "abstract_controller/rendering"
 class LookupContextTest < ActiveSupport::TestCase
   def setup
     @lookup_context = ActionView::LookupContext.new(FIXTURE_LOAD_PATH, {})
-    ActionView::LookupContext::DetailsKey.clear
+    ActionView::DetailsKey.clear
   end
 
   def teardown

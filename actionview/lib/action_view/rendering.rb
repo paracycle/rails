@@ -41,7 +41,8 @@ module ActionView
           routes  = respond_to?(:_routes)  && _routes
           helpers = respond_to?(:_helpers) && _helpers
 
-          Class.new(ActionView::Base) do
+          klass = ActionView::DetailsKey.view_context_class(ActionView::Base)
+          Class.new(klass) do
             if routes
               include routes.url_helpers(supports_path)
               include routes.mounted_helpers

@@ -297,7 +297,7 @@ module TemplateModificationHelper
       path = File.expand_path("../fixtures/#{name}.erb", __dir__)
       original = File.read(path)
       File.write(path, "#{original} Modified!")
-      ActionView::LookupContext::DetailsKey.clear
+      ActionView::DetailsKey.clear
       yield
     ensure
       File.write(path, original)

@@ -8,7 +8,7 @@ module ActionView
 
     module PerExecutionDigestCacheExpiry
       def self.before(target)
-        ActionView::LookupContext::DetailsKey.clear
+        ActionView::DetailsKey.clear
       end
     end
 

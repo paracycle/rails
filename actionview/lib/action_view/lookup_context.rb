@@ -4,6 +4,7 @@ require "concurrent/map"
 require "active_support/core_ext/module/remove_method"
 require "active_support/core_ext/module/attribute_accessors"
 require "action_view/template/resolver"
+require "action_view/details_key"
 
 module ActionView
   # = Action View Lookup Context
@@ -52,28 +53,6 @@ module ActionView
     register_detail(:formats) { ActionView::Base.default_formats || [:html, :text, :js, :css,  :xml, :json] }
     register_detail(:variants) { [] }
     register_detail(:handlers) { Template::Handlers.extensions }
-
-    class DetailsKey #:nodoc:
-      alias :eql? :equal?
-
-      @details_keys = Concurrent::Map.new
-
-      def self.get(details)
-        if details[:formats]
-          details = details.dup
-          details[:formats] &= Template::Types.symbols
-        end
-        @details_keys[details] ||= Concurrent::Map.new
-      end
-
-      def self.clear
-        @details_keys.clear
-      end
-
-      def self.digest_caches
-        @details_keys.values
-      end
-    end
 
     # Add caching behavior on top of Details.
     module DetailsCache

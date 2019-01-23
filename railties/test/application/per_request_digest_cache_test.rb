@@ -56,13 +56,13 @@ class PerRequestDigestCacheTest < ActiveSupport::TestCase
     get "/customers"
     assert_equal 200, last_response.status
 
-    values = ActionView::LookupContext::DetailsKey.digest_caches.first.values
+    values = ActionView::DetailsKey.digest_caches.first.values
     assert_equal [ "effc8928d0b33535c8a21d24ec617161" ], values
     assert_equal %w(david dingus), last_response.body.split.map(&:strip)
   end
 
   test "template digests are cleared before a request" do
-    assert_called(ActionView::LookupContext::DetailsKey, :clear) do
+    assert_called(ActionView::DetailsKey, :clear) do
       get "/customers"
       assert_equal 200, last_response.status
     end

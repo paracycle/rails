@@ -3,8 +3,19 @@
 require "abstract_unit"
 
 class CompiledTemplatesTest < ActiveSupport::TestCase
-  teardown do
-    ActionView::LookupContext::DetailsKey.clear
+  attr_reader :view_class
+
+  def setup
+    super
+    view_paths     = ActionController::Base.view_paths
+    view_paths.each(&:clear_cache)
+    ActionView::LookupContext.fallbacks.each(&:clear_cache)
+    @view_class = ActionView::Base.with_empty_template_cache
+  end
+
+  def teardown
+    super
+    ActionView::DetailsKey.clear
   end
 
   def test_template_with_nil_erb_return
@@ -71,14 +82,14 @@ class CompiledTemplatesTest < ActiveSupport::TestCase
     end
 
     def render_with_cache(*args)
-      view_paths = ActionController::Base.view_paths
-      ActionView::Base.new(view_paths, {}).render(*args)
+      view_paths     = ActionController::Base.view_paths
+      view_class.new(view_paths, {}).render(*args)
     end
 
     def render_without_cache(*args)
       path = ActionView::FileSystemResolver.new(FIXTURE_LOAD_PATH)
       view_paths = ActionView::PathSet.new([path])
-      ActionView::Base.new(view_paths, {}).render(*args)
+      view_class.new(view_paths, {}).render(*args)
     end
 
     def modify_template(template, content)
